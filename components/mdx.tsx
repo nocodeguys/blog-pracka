@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { MDXRemote } from 'next-mdx-remote/rsc'
+import { MDXRemote, MDXRemoteProps } from 'next-mdx-remote/rsc'
 import { highlight } from 'sugar-high'
 import React from 'react'
 
@@ -10,23 +10,24 @@ type TableData = {
 }
 
 function Table({ data }: { data: TableData }) {
-  const headers = data.headers.map((header: string, index: number) => (
-    <th key={index}>{header}</th>
-  ))
-  const rows = data.rows.map((row: (string | number)[], index: number) => (
-    <tr key={index}>
-      {row.map((cell: string | number, cellIndex: number) => (
-        <td key={cellIndex}>{cell}</td>
-      ))}
-    </tr>
-  ))
-
   return (
     <table>
       <thead>
-        <tr>{headers}</tr>
+        <tr>
+          {data.headers.map((header: string, index: number) => (
+            <th key={index}>{header}</th>
+          ))}
+        </tr>
       </thead>
-      <tbody>{rows}</tbody>
+      <tbody>
+        {data.rows.map((row: (string | number)[], rowIndex: number) => (
+          <tr key={rowIndex}>
+            {row.map((cell: string | number, cellIndex: number) => (
+              <td key={cellIndex}>{cell}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
     </table>
   )
 }
@@ -50,7 +51,7 @@ function CustomLink(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
 }
 
 function RoundedImage(props: React.ComponentProps<typeof Image>) {
-  return <Image className="rounded-lg" alt={props.alt || ''} {...props} />
+  return <Image alt={props.alt || 'Image'} className="rounded-lg" {...props} />
 }
 
 function Code({ children, ...props }: React.HTMLAttributes<HTMLElement>) {
@@ -70,8 +71,8 @@ function slugify(str: string) {
 }
 
 function createHeading(level: number) {
-  const Heading = ({ children }: { children: React.ReactNode }) => {
-    const slug = slugify(children as string)
+  return function Heading({ children }: { children: React.ReactNode }) {
+    const slug = slugify(React.Children.toArray(children).join(''))
     return React.createElement(
       `h${level}`,
       { id: slug },
@@ -81,14 +82,10 @@ function createHeading(level: number) {
           key: `link-${slug}`,
           className: 'anchor',
         }),
-      ],
-      children
+        children
+      ]
     )
   }
-
-  Heading.displayName = `Heading${level}`
-
-  return Heading
 }
 
 const components = {
@@ -102,9 +99,9 @@ const components = {
   a: CustomLink,
   code: Code,
   Table,
-}
+} as const;
 
-export function CustomMDX(props: Parameters<typeof MDXRemote>[0]) {
+export function CustomMDX(props: MDXRemoteProps) {
   return (
     <MDXRemote
       {...props}
