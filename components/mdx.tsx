@@ -10,12 +10,12 @@ type TableData = {
 }
 
 function Table({ data }: { data: TableData }) {
-  let headers = data.headers.map((header: string, index: number) => (
+  const headers = data.headers.map((header: string, index: number) => (
     <th key={index}>{header}</th>
   ))
-  let rows = data.rows.map((row: any[], index: number) => (
+  const rows = data.rows.map((row: (string | number)[], index: number) => (
     <tr key={index}>
-      {row.map((cell: any, cellIndex: number) => (
+      {row.map((cell: string | number, cellIndex: number) => (
         <td key={cellIndex}>{cell}</td>
       ))}
     </tr>
@@ -32,7 +32,7 @@ function Table({ data }: { data: TableData }) {
 }
 
 function CustomLink(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
-  let href = props.href
+  const href = props.href
 
   if (href?.startsWith('/')) {
     return (
@@ -50,11 +50,11 @@ function CustomLink(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
 }
 
 function RoundedImage(props: React.ComponentProps<typeof Image>) {
-  return <Image className="rounded-lg" {...props} />
+  return <Image className="rounded-lg" alt={props.alt || ''} {...props} />
 }
 
 function Code({ children, ...props }: React.HTMLAttributes<HTMLElement>) {
-  let codeHTML = highlight(children as string)
+  const codeHTML = highlight(children as string)
   return <code dangerouslySetInnerHTML={{ __html: codeHTML }} {...props} />
 }
 
@@ -71,7 +71,7 @@ function slugify(str: string) {
 
 function createHeading(level: number) {
   const Heading = ({ children }: { children: React.ReactNode }) => {
-    let slug = slugify(children as string)
+    const slug = slugify(children as string)
     return React.createElement(
       `h${level}`,
       { id: slug },
@@ -108,7 +108,7 @@ export function CustomMDX(props: Parameters<typeof MDXRemote>[0]) {
   return (
     <MDXRemote
       {...props}
-      components={components as any}
+      components={components}
     />
   )
 }
