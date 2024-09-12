@@ -72,21 +72,23 @@ function slugify(str: string) {
 }
 
 function createHeading(level: number) {
-  return function Heading({ children }: { children: React.ReactNode }) {
-    const slug = slugify(React.Children.toArray(children).join(''))
-    return React.createElement(
-      `h${level}`,
-      { id: slug },
-      [
-        React.createElement('a', {
-          href: `#${slug}`,
-          key: `link-${slug}`,
-          className: 'anchor',
-        }),
-        children
-      ]
-    )
-  }
+  return React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
+    function Heading({ children, ...props }, ref) {
+      const slug = slugify(React.Children.toArray(children).join(''))
+      return React.createElement(
+        `h${level}`,
+        { id: slug, ref, ...props },
+        [
+          React.createElement('a', {
+            href: `#${slug}`,
+            key: `link-${slug}`,
+            className: 'anchor',
+          }),
+          children
+        ]
+      )
+    }
+  )
 }
 
 const components = {
@@ -100,7 +102,7 @@ const components = {
   a: CustomLink,
   code: Code,
   Table,
-} as const;
+};
 
 export function CustomMDX(props: MDXRemoteProps) {
   return (
