@@ -4,7 +4,12 @@ import { MDXRemote } from 'next-mdx-remote/rsc'
 import { highlight } from 'sugar-high'
 import React from 'react'
 
-function Table({ data }: { data: { headers: string[], rows: any[][] } }) {
+type TableData = {
+  headers: string[];
+  rows: (string | number)[][];
+}
+
+function Table({ data }: { data: TableData }) {
   let headers = data.headers.map((header: string, index: number) => (
     <th key={index}>{header}</th>
   ))
@@ -45,7 +50,7 @@ function CustomLink(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
 }
 
 function RoundedImage(props: React.ComponentProps<typeof Image>) {
-  return <Image alt={props.alt} className="rounded-lg" {...props} />
+  return <Image className="rounded-lg" {...props} />
 }
 
 function Code({ children, ...props }: React.HTMLAttributes<HTMLElement>) {
@@ -57,11 +62,11 @@ function slugify(str: string) {
   return str
     .toString()
     .toLowerCase()
-    .trim() // Remove whitespace from both ends of a string
-    .replace(/\s+/g, '-') // Replace spaces with -
-    .replace(/&/g, '-and-') // Replace & with 'and'
-    .replace(/[^\w\-]+/g, '') // Remove all non-word characters except for -
-    .replace(/\-\-+/g, '-') // Replace multiple - with single -
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/&/g, '-and-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-')
 }
 
 function createHeading(level: number) {
@@ -86,7 +91,7 @@ function createHeading(level: number) {
   return Heading
 }
 
-let components = {
+const components = {
   h1: createHeading(1),
   h2: createHeading(2),
   h3: createHeading(3),
@@ -103,7 +108,7 @@ export function CustomMDX(props: Parameters<typeof MDXRemote>[0]) {
   return (
     <MDXRemote
       {...props}
-      components={{ ...components, ...(props.components || {}) }}
+      components={components as any}
     />
   )
 }
